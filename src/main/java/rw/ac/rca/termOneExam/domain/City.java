@@ -38,6 +38,9 @@ public class City {
 		this.fahrenheit = fahrenheit;
 	}
 
+//	public City(long l, String kigali, int i) {
+//	}
+
 
 	public long getId() {
 		return id;
