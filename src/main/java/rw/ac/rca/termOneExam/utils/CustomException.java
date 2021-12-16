@@ -4,11 +4,9 @@ import org.springframework.http.HttpStatus;
 
 public class CustomException {
     private HttpStatus httpStatus;
-    private String mess;
 
     public CustomException(String message, HttpStatus httpStatus) {
-//        super(message);
-        this.mess = message;
+        super(message);
         this.httpStatus = httpStatus;
     }
 

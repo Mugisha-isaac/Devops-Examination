@@ -70,8 +70,4 @@ public class CityControllerIntegrationTest {
 
         mockMvc.perform(request).andExpect(status().isCreated()).andExpect((ResultMatcher) content().json(" {\"id\":1,\"name\":\"kigali\",\"weather\":20}")).andReturn();
     }
-
-
-
-
 }
