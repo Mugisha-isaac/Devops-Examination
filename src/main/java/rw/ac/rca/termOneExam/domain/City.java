@@ -70,8 +70,8 @@ public class City {
 		return fahrenheit;
 	}
 
-	public void setFahrenheit(double fahrenheit) {
-		this.fahrenheit = fahrenheit;
+	public void setFahrenheit(double weather) {
+		this.fahrenheit = (weather*1.8)+32;
 	}
 	
 }
