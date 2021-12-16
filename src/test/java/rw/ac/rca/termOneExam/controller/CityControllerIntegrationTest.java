@@ -6,9 +6,12 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultMatcher;
@@ -21,52 +24,55 @@ import rw.ac.rca.termOneExam.service.CityService;
 import rw.ac.rca.termOneExam.utils.CustomException;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 import static org.hamcrest.Matchers.any;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(CityController.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class CityControllerIntegrationTest {
-
     @Autowired
-    private MockMvc mockMvc;
-    @MockBean
-    private CityService cityService;
+    private TestRestTemplate restTemplate;
 
     @Test
-    public void getAll_test() throws Exception {
-        when(cityService.getAll()).thenReturn(Arrays.asList(new City(1L, "Kigali", 24, 23), new City(2L, "Musanze", 18, 23), new City(3L, "Nyabihu", 16, 23)));
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/api/cities/all").accept(MediaType.APPLICATION_JSON);
-        mockMvc.perform(request).andExpect(status().isOk()).andReturn();
+    public void findById_Success() {
+        ResponseEntity<String> response = restTemplate.getForEntity("/api/cities/101", String.class);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
     @Test
-    public void findById_test() throws Exception {
-        when(cityService.getById(anyLong())).thenReturn(java.util.Optional.of(new City(101, "Kigali",23,0)));
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/api/cities/101").accept(MediaType.APPLICATION_JSON);
-        mockMvc.perform(request).andExpect(status().isOk()).andReturn();
+    public void findById_NotFound() {
+        ResponseEntity<String> response = restTemplate.getForEntity("/api/cities/160", String.class);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
+
     @Test
-    public void findById_NotFound_test() throws Exception{
-        when(cityService.getById(anyLong())).thenThrow(new CustomException('city does not exist',HttpStatus.NOT_FOUND));
+    public void getAll_Success() {
+        ResponseEntity<String> response = restTemplate.getForEntity("/api/cities/all", String.class);
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/api/cities/1");
-
-        mockMvc.perform(request).andExpect(status().isNotFound()).andExpect((ResultMatcher) content().string("Contact with this id not found")).andReturn();
+        assertEquals(HttpStatus.OK, response.getStatusCode());
     }
+
     @Test
-    public void create_test() throws Exception {
-        when(cityService.save(ArgumentMatchers.any(CreateCityDTO.class))).thenReturn(new City(1L, "Kigali",20,23));
+    public void getAll_NotFound() {
+        ResponseEntity<String> response = restTemplate.getForEntity("/api/cities/all", String.class);
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/api/cities")
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .content("{\"name\": \"kigali\",\"weather\": \20\"}");
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
 
-        mockMvc.perform(request).andExpect(status().isCreated()).andExpect((ResultMatcher) content().json(" {\"id\":1,\"firstName\":\"Kaisa\",\"lastName\":null,\"email\":null,\"address\":null,\"workPhone\":null,\"homePhone\":null,\"mobilePhone\":\"250783384212\",\"twitterProfileUrl\":null,\"facebookProfileUrl\":null,\"linkedInProfileUrl\":null}")).andReturn();
+    @Test
+    public void saveCity_Success() {
+        City theCity = new City(105L, "Kayonza", 30);
+        ResponseEntity<City> response = restTemplate.postForEntity("/api/cities/add", theCity, City.class);
+
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertEquals("Kayonza", Objects.requireNonNull(response.getBody()).getName());
     }
 }

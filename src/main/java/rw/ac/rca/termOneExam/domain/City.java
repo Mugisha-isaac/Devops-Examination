@@ -11,18 +11,18 @@ public class City {
 	@Id
 	@GeneratedValue
 	private long id;
-	
+
 	private String name;
-	
+
 	private double weather;
-	
+
 	@Transient
 	private double fahrenheit;
 
 	public City() {
 		super();
 	}
-	
+
 	public City(String name, double weather) {
 		super();
 		this.name = name;
@@ -38,8 +38,12 @@ public class City {
 		this.fahrenheit = fahrenheit;
 	}
 
-//	public City(long l, String kigali, int i) {
-//	}
+	public City(long id, String name, double weather) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.weather = weather;
+	}
 
 
 	public long getId() {
@@ -70,8 +74,7 @@ public class City {
 		return fahrenheit;
 	}
 
-	public void setFahrenheit(double weather) {
-		this.fahrenheit = (weather*1.8)+32;
+	public void setFahrenheit(double fahrenheit) {
+		this.fahrenheit = fahrenheit;
 	}
-	
 }
